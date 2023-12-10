@@ -64,9 +64,8 @@ if f is not None:
         bytes_data = f.getvalue()
 
         # Load your API key from an environment variable or secret management service
-        #api_token = st.secrets["api_token"]
-        api_token="elvis"       
-  
+        api_token = st.secrets["api_token"]
+
         # endregion API key
         headers = {"Authorization": f"Bearer {api_token}"}
         API_URL = (
