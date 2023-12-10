@@ -64,7 +64,7 @@ if f is not None:
         bytes_data = f.getvalue()
 
         # Load your API key from an environment variable or secret management service
-        api_token = st.secrets["api_token"]
+        api_token = st.secrets["API_TOKEN"]
 
         # endregion API key
         headers = {"Authorization": f"Bearer {api_token}"}
@@ -73,7 +73,7 @@ if f is not None:
         )
 
         def query(data):
-            response = requests.request("POST", API_URL, headers=headers, data=data)
+            response = requests.request("POST", API_URL, data=data)
             return json.loads(response.content.decode("utf-8"))
 
         # st.audio(f, format="wav")
