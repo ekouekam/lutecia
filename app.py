@@ -5,7 +5,7 @@ import requests
 import json
 import os
 import torch
-from torcheval.metrics import WordErrorRate
+from torchmetrics import WordErrorRate
 
 # from css_tricks import _max_width_
 
