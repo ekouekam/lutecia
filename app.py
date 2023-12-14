@@ -4,7 +4,7 @@ import streamlit as st
 import requests
 import json
 import os
-from torchmetrics.text.word_error_rate import WordErrorRate
+from torchmetrics import Metric, WordErrorRate
 
 # from css_tricks import _max_width_
 
