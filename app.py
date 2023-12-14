@@ -4,7 +4,7 @@ import streamlit as st
 import requests
 import json
 import os
-from torchmetrics import Metric, WordErrorRate
+from wav2vec2.utils.wer import wer
 
 # from css_tricks import _max_width_
 
@@ -180,7 +180,7 @@ if audio_response.status_code == 200:
         print("Predicted Text:", text_value)
 
         # Calculate WER for Wav2Letter++
-        wer_wav2letter.append(metric.update(transcription_wav2letter, text_value).compute())
+        wer_wav2letter.append(wer(transcription_wav2letter, text_value))
 
         # Evaluate and compare performance metrics
         average_wer_wav2letter = sum(wer_wav2letter) / len(wer_wav2letter)
