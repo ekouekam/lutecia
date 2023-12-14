@@ -4,6 +4,8 @@ import streamlit as st
 import requests
 import json
 import os
+import torch
+from torcheval.metrics import WordErrorRate
 
 # from css_tricks import _max_width_
 
@@ -115,7 +117,7 @@ else:
 # graphics dashboard and footer -------------------------------------------------
 
 import pandas as pd
-import werpy
+
 from io import BytesIO
 from datasets import load_dataset
 
@@ -123,14 +125,21 @@ from datasets import load_dataset
 wer_wav2letter = []
 wer_wav2vec = []
 
+# Instantiate the metric
+metric = WordErrorRate()
+
 # Load a small sample from the CommonVoice dataset
 # Load the CommonVoice dataset from CSV
+#local
 #url = '/app/common_voice_11_0'
 #commonvoice_data = load_dataset(url, 'en', split='train' ,data_files='commonvoice.tsv')
-commonvoice_data = load_dataset("mozilla-foundation/common_voice_7_0", "en", split="train", use_auth_token=st.secrets["API_TOKEN"])
+#streaming
+commonvoice_data = load_dataset("mozilla-foundation/common_voice_11_0", "en", split="train", streaming=True, use_auth_token=st.secrets["API_TOKEN"])
 
 # Selecting the first audio sample
-first_sample = commonvoice_data[0]
+# Get the first sample
+
+first_sample = next(iter(commonvoice_data))
 
 # Get audio URL and transcript from the sample
 audio_url = first_sample["path"]
@@ -172,7 +181,7 @@ if audio_response.status_code == 200:
         print("Predicted Text:", text_value)
 
         # Calculate WER for Wav2Letter++
-        wer_wav2letter.append(werpy.wer(transcription_wav2letter, text_value))
+        wer_wav2letter.append(metric.update(transcription_wav2letter, text_value).compute())
 
         # Evaluate and compare performance metrics
         average_wer_wav2letter = sum(wer_wav2letter) / len(wer_wav2letter)
