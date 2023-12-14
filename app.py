@@ -4,7 +4,7 @@ import streamlit as st
 import requests
 import json
 import os
-from wav2vec2.utils.wer import wer
+
 
 # from css_tricks import _max_width_
 
@@ -125,7 +125,28 @@ wer_wav2letter = []
 wer_wav2vec = []
 
 # Instantiate the metric
-metric = WordErrorRate()
+def calculate_wer(reference, hypothesis):
+    # Convert the reference and hypothesis strings to lists of words
+    reference_words = reference.split()
+    hypothesis_words = hypothesis.split()
+
+    # Initialize the edit distance matrix
+    edit_distance_matrix = [[0 for _ in range(len(hypothesis_words) + 1)] for _ in range(len(reference_words) + 1)]
+
+    # Fill in the edit distance matrix
+    for i in range(1, len(reference_words) + 1):
+        for j in range(1, len(hypothesis_words) + 1):
+            if reference_words[i - 1] == hypothesis_words[j - 1]:
+                edit_distance_matrix[i][j] = edit_distance_matrix[i - 1][j - 1]
+            else:
+                substitution_cost = 1
+                insertion_cost = edit_distance_matrix[i - 1][j] + 1
+                deletion_cost = edit_distance_matrix[i][j - 1] + 1
+                edit_distance_matrix[i][j] = min(substitution_cost, insertion_cost, deletion_cost)
+
+    # Calculate the word error rate
+    wer = float(edit_distance_matrix[-1][-1]) / len(reference_words)
+    return wer
 
 # Load a small sample from the CommonVoice dataset
 # Load the CommonVoice dataset from CSV
@@ -180,7 +201,7 @@ if audio_response.status_code == 200:
         print("Predicted Text:", text_value)
 
         # Calculate WER for Wav2Letter++
-        wer_wav2letter.append(wer(transcription_wav2letter, text_value))
+        wer_wav2letter.append(calculate_wer(transcription_wav2letter, text_value))
 
         # Evaluate and compare performance metrics
         average_wer_wav2letter = sum(wer_wav2letter) / len(wer_wav2letter)
